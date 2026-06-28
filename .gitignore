@@ -5,3 +5,8 @@ __pycache__/
 .vscode/
 .idea/
 *.exe
+
+# PyInstaller 构建产物
+build/
+dist/
+*.spec.bak

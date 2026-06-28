@@ -4,6 +4,12 @@
 
 ## 快速启动
 
+### 方式一：下载即用（无需 Python）
+
+到 [Releases](../../releases) 下载 `象棋助手.zip`，解压后双击文件夹里的 `象棋助手.exe` 即可运行，无需安装 Python 或任何依赖。
+
+### 方式二：源码运行
+
 ```bash
 # 双击启动
 启动可视化版.bat
@@ -13,6 +19,28 @@ python main_visual.py
 ```
 
 无需安装第三方依赖，使用包含 tkinter 的标准 Python 即可运行。
+
+## 打包发布（开发者）
+
+把项目打包成独立 exe，供他人免安装使用：
+
+```bash
+# 双击运行，自动安装 PyInstaller、打包并生成发布压缩包
+build.bat
+```
+
+产物：
+
+- `dist\象棋助手\象棋助手.exe` —— 可执行程序（需与同目录的 `_internal` 文件夹一起分发）
+- `dist\象棋助手.zip` —— 打好的发布压缩包（约 63 MB，含引擎），上传到 GitHub Release 即可
+
+发布到 GitHub Release（需安装 [gh CLI](https://cli.github.com/)）：
+
+```bash
+gh release create v1.0.0 "dist/象棋助手.zip" --title "象棋助手 v1.0.0" --notes "免安装版本，解压双击即用"
+```
+
+也可以在 GitHub 仓库页面手动新建 Release，把 `dist\象棋助手.zip` 拖上去。
 
 ## 使用流程
 

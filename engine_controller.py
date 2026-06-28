@@ -3,19 +3,39 @@
 """
 import subprocess
 import os
+import sys
 from typing import Optional, Tuple
+
+
+def get_resource_dir() -> str:
+    """
+    获取资源根目录。
+
+    - 开发运行时：返回本文件所在目录。
+    - PyInstaller 打包后：返回可执行文件所在目录（引擎文件随 exe 一起分发）。
+    """
+    if getattr(sys, "frozen", False):
+        # 已被 PyInstaller 打包。打包进来的数据文件位于 sys._MEIPASS：
+        # - onedir 模式下指向 exe 同级的 _internal 目录
+        # - onefile 模式下指向运行时解压的临时目录
+        return getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    # 普通脚本运行，使用本文件所在目录
+    return os.path.dirname(os.path.abspath(__file__))
 
 
 class XiangqiEngine:
     """象棋引擎类，负责与 Pikafish 引擎通信"""
 
-    def __init__(self, engine_path: str = "engine/pikafish.exe"):
+    def __init__(self, engine_path: Optional[str] = None):
         """
         初始化引擎
 
         Args:
-            engine_path: 引擎可执行文件路径
+            engine_path: 引擎可执行文件路径。默认根据运行环境自动定位
+                         resource_dir/engine/pikafish.exe。
         """
+        if engine_path is None:
+            engine_path = os.path.join(get_resource_dir(), "engine", "pikafish.exe")
         self.engine_path = engine_path
         self.process: Optional[subprocess.Popen] = None
         self.initialized = False
@@ -37,7 +57,11 @@ class XiangqiEngine:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
-                bufsize=1
+                bufsize=1,
+                # 引擎需要在自身目录下运行才能找到 pikafish.nnue 权重文件
+                cwd=os.path.dirname(abs_path),
+                # 打包后无控制台时，避免弹出黑色命令行窗口
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             # 发送 UCI 初始化命令
             self._send_command("uci")
